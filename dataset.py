@@ -4,6 +4,7 @@ from torch.utils.data import Dataset
 from tokenizers import Tokenizer
 from tokenizers.models import BPE
 from tokenizers.trainers import BpeTrainer
+from tokenizers.decoders import BPEDecoder
 
 
 class TextDataset(Dataset):
@@ -15,9 +16,16 @@ class TextDataset(Dataset):
         try:
             self.tokenizer = Tokenizer.from_file("data/tokenizer.json")
             self.tokenizer.pre_tokenizer = self.pre_tokenizer
+            self.tokenizer.decoder = BPEDecoder()
         except:
-            self.tokenizer = Tokenizer(BPE())
+            self.tokenizer = Tokenizer(
+                BPE(
+                    unk_token="<UNK>",
+                    continuing_subword_prefix="##"
+                )
+            )
             self.tokenizer.pre_tokenizer = self.pre_tokenizer
+            self.tokenizer.decoder = BPEDecoder()
             trainer = BpeTrainer(
                 vocab_size=10000,
                 special_tokens=[
@@ -25,7 +33,8 @@ class TextDataset(Dataset):
                     "<BOS>",
                     "<EOS>",
                     "<UNK>"
-                ]
+                ],
+                continuing_subword_prefix="##"
             )
             self.tokenizer.train_from_iterator([self.text], trainer)
             self.tokenizer.save("data/tokenizer.json")

@@ -19,7 +19,7 @@ class MiniGPT(nn.Module):
         self.linear = Linear(embedding_dim, vocab_size)
 
     def forward(self, x):
-        mask = torch.nn.Transformer.generate_square_subsequent_mask(self.embedding_dim)
+        mask = torch.nn.Transformer.generate_square_subsequent_mask(x.shape[1])
 
         x = self.embedding(x) + self.position_embedding(torch.arange(x.shape[1]).to(self.device))
         x = self.decoder1(x, src_mask=mask, is_causal=True)
@@ -34,9 +34,21 @@ class MiniGPT(nn.Module):
         ans = x.copy()
         l = len(x)
         while l < max_len and ans[-1] != 2:
-            model_x = torch.tensor(ans[-1-context_len:], dtype=torch.long)
-            logits = self(model_x)[-1]
-            pred_token = logits.argmax()
+            context = ans[-context_len:] if l >= context_len else ans
+            model_x = torch.tensor(context, dtype=torch.long).unsqueeze(0).to(self.device)
+            # print(model_x.shape)
+            logits = self(model_x).squeeze()[-1]
+
+            probs = torch.softmax(
+                logits,
+                dim=-1
+            )
+
+            pred_token = torch.multinomial(
+                probs,
+                num_samples=1
+            ).item()
+
             ans.append(pred_token)
             l += 1
         return ans
