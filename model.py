@@ -83,7 +83,7 @@ class MiniGPT(nn.Module):
         return x
 
     @torch.no_grad()
-    def prompt_one(self, x, context_len=256, max_len=1000, temperature=1.0, k=20):
+    def prompt_one(self, x, context_len=256, max_len=1000, temperature=0.75, k=20):
         # 1 - BOS, 2 - EOS
         ans = x.copy()
         l = len(x)
@@ -100,10 +100,10 @@ class MiniGPT(nn.Module):
                 dim=-1
             )
 
-            pred_token = torch.multinomial(
+            pred_token = indices[torch.multinomial(
                 probs,
                 num_samples=1
-            ).item()
+            )].item()
 
             ans.append(pred_token)
             l += 1
