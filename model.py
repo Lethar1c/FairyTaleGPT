@@ -55,7 +55,7 @@ import torch.nn as nn
 
 
 class MiniGPT(nn.Module):
-    def __init__(self, device, vocab_size, max_seq_length, embedding_dim=384, num_heads=8, dropout=0.1, batch_first=False, num_layers=6):
+    def __init__(self, device, vocab_size, max_seq_length, embedding_dim=384, num_heads=8, dropout=0.1, batch_first=True, num_layers=6):
         super().__init__()
         self.device = device
         self.embedding = Embedding(vocab_size, embedding_dim, padding_idx=0)
@@ -76,9 +76,9 @@ class MiniGPT(nn.Module):
         # print(mask.device)
         x = self.embedding(x) + self.position_embedding(torch.arange(x.shape[1]).to(self.device))
         for decoder in self.decoders:
-            x = decoder(x, src_mask=mask)
+            x = decoder(x, src_mask=mask, is_causal=True)
             # print(x.device)
-        x = self.layer_norm(x)
+        # x = self.layer_norm(x)
         x = self.linear(x)
         return x
 
@@ -99,6 +99,8 @@ class MiniGPT(nn.Module):
                 values,
                 dim=-1
             )
+
+            print(probs)
 
             pred_token = indices[torch.multinomial(
                 probs,
