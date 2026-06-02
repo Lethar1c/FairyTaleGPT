@@ -8,8 +8,8 @@ from tokenizers.decoders import BPEDecoder
 
 
 class TextDataset(Dataset):
-    def __init__(self, text: str, context_window=256):
-        self.stride = context_window
+    def __init__(self, text: str, context_window=256, stride=256):
+        self.stride = stride
         self.text = text.replace("\n", " \n ")
         self.context_window = context_window
         self.pre_tokenizer = Whitespace()
