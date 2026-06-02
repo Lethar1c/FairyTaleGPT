@@ -70,6 +70,7 @@ class MiniGPT(nn.Module):
 
 
     def forward(self, x):
+        print(x.shape)
         mask = torch.nn.Transformer.generate_square_subsequent_mask(x.shape[1])
 
         x = self.embedding(x) + self.position_embedding(torch.arange(x.shape[1]).to(self.device))
