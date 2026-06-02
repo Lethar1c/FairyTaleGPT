@@ -71,13 +71,13 @@ class MiniGPT(nn.Module):
 
     def forward(self, x):
         x = x.to(self.device)
-        print(x.device)
+        # print(x.device)
         mask = torch.nn.Transformer.generate_square_subsequent_mask(x.shape[1]).to(self.device)
-        print(mask.device)
+        # print(mask.device)
         x = self.embedding(x) + self.position_embedding(torch.arange(x.shape[1]).to(self.device))
         for decoder in self.decoders:
             x = decoder(x, src_mask=mask)
-            print(x.device)
+            # print(x.device)
         x = self.layer_norm(x)
         x = self.linear(x)
         return x
@@ -90,6 +90,7 @@ class MiniGPT(nn.Module):
         while l < max_len and ans[-1] != 2:
             context = ans[-context_len:] if l >= context_len else ans
             model_x = torch.tensor(context, dtype=torch.long).unsqueeze(0).to(self.device)
+            # print(context, model)
             logits = self(model_x).squeeze()[-1] / temperature
 
             values, indices = torch.topk(logits, k)
