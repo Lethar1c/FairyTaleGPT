@@ -100,7 +100,7 @@ class MiniGPT(nn.Module):
                 dim=-1
             )
 
-            print(probs)
+            # print(probs)
 
             pred_token = indices[torch.multinomial(
                 probs,
