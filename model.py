@@ -70,13 +70,14 @@ class MiniGPT(nn.Module):
 
 
     def forward(self, x):
-        print(x.shape)
         x = x.to(self.device)
+        print(x.device)
         mask = torch.nn.Transformer.generate_square_subsequent_mask(x.shape[1]).to(self.device)
-
+        print(mask.device)
         x = self.embedding(x) + self.position_embedding(torch.arange(x.shape[1]).to(self.device))
         for decoder in self.decoders:
             x = decoder(x, src_mask=mask)
+            print(x.device)
         x = self.layer_norm(x)
         x = self.linear(x)
         return x
